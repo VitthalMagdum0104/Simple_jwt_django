@@ -19,6 +19,11 @@ class BlogList(ListAPIView):
 class CreateBlog(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(slef, request):
+        blog = Blog.objects.filter(created_by=request.user.id)
+        blog_serializer = BlogSerializer(blog, many=True)
+        return Response(blog_serializer.data)
+
     def post(self, request):
         data = JSONParser().parse(request)
         title = data['title']
