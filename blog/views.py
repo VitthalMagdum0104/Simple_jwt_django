@@ -1,7 +1,7 @@
 from blog.serializers import BlogSerializer
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, DestroyAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import permission_classes
@@ -29,15 +29,28 @@ class CreateBlog(APIView):
         title = data['title']
         content = data['content']
         slug = data['slug']
-        print(request.user.id)
 
         blog = Blog.objects.create(
             title=title, content=content, slug=slug, created_by=request.user)
 
         return Response({'message': 'Blog created successfully.'})
 
+    def put(self, request):
+        data = JSONParser().parse(request)
+        title = data['title']
+        content = data['content']
+        slug = data['slug']
 
-class RetrieveUpdateView(RetrieveUpdateAPIView):
+        blog = Blog.objects.get(slug=slug)
+        if title:
+            blog.title = title
+        if content:
+            blog.content = content
+        blog.save()
+        return Response({'message': 'Blog Updated successfully.'})
+
+
+class RetrieveUpdateView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     queryset = Blog.objects.all()

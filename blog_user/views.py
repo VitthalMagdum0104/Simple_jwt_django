@@ -2,20 +2,15 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from rest_framework.parsers import JSONParser
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
-
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
-
-
-class Signup(CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 
 class HandleSignup(APIView):
@@ -47,6 +42,8 @@ class HandleSignup(APIView):
 
 
 class Login(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         data = JSONParser().parse(request)
         username = data['username']
@@ -64,6 +61,7 @@ class Login(APIView):
             return Response({"meassage": " Invalid Crediantials."})
 
 
+@permission_classes([IsAuthenticated])
 def user_logout(request):
     logout(request)
     messages.error(request, "Successfully Logout.")
